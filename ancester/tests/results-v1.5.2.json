@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Version is 1.5.2",
+    "result": "PASS"
+  },
+  {
+    "name": "Ordinary progress notifications are suppressed",
+    "result": "PASS"
+  },
+  {
+    "name": "Recovered work can still emit resumed notification",
+    "result": "PASS"
+  },
+  {
+    "name": "New waits start with stall acknowledgement disabled",
+    "result": "PASS"
+  },
+  {
+    "name": "Opening or focusing the tab acknowledges the current wait",
+    "result": "PASS"
+  },
+  {
+    "name": "Acknowledged waits do not emit the same stall",
+    "result": "PASS"
+  },
+  {
+    "name": "Fresh visible progress re-enables stall monitoring",
+    "result": "PASS"
+  },
+  {
+    "name": "Notification still does not request highlight",
+    "result": "PASS"
+  },
+  {
+    "name": "Notification still does not call window.focus",
+    "result": "PASS"
+  }
+]

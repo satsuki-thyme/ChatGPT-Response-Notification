@@ -1,0 +1,14 @@
+{
+  "name": "chatgpt-response-favicon-tests",
+  "version": "1.5.2",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --check chatgpt-response-favicon.user.js && node tests/test-favicon-dom.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.1"
+  }
+}

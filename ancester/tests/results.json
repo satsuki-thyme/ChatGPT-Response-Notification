@@ -1,0 +1,370 @@
+[
+  {
+    "name": "Loading completed history does not notify",
+    "result": "PASS"
+  },
+  {
+    "name": "Generation detected without a new user turn; two cycles restore even without window focus",
+    "result": "PASS"
+  },
+  {
+    "name": "Instant response after send click, copy button outside author-role element",
+    "result": "PASS"
+  },
+  {
+    "name": "Enter captures an instant response before the DOM changes",
+    "result": "PASS"
+  },
+  {
+    "name": "Form submit captures an instant response",
+    "result": "PASS"
+  },
+  {
+    "name": "Voice Stop dictation and a hidden generation control are ignored",
+    "result": "PASS"
+  },
+  {
+    "name": "Clicking Stop cancels the notification",
+    "result": "PASS"
+  },
+  {
+    "name": "Brief stop-control disappearance does not notify early",
+    "result": "PASS"
+  },
+  {
+    "name": "Native favicon href updates during notification are preserved on restore",
+    "result": "PASS"
+  },
+  {
+    "name": "Replacement favicon elements restore; no recurring mutation loop",
+    "result": "PASS"
+  },
+  {
+    "name": "First send survives creation of a conversation URL",
+    "result": "PASS"
+  },
+  {
+    "name": "Navigation to another conversation clears the old pending response",
+    "result": "PASS"
+  },
+  {
+    "name": "Five-second test works twice and does not add conversation turns",
+    "result": "PASS"
+  },
+  {
+    "name": "Identical regenerated text still notifies",
+    "result": "PASS"
+  },
+  {
+    "name": "Completion while the tab is visible does not notify",
+    "result": "PASS"
+  },
+  {
+    "name": "Missing native icons leave no green override after acknowledgement",
+    "result": "PASS"
+  },
+  {
+    "name": "Current section wrapper structure detects copy actions outside message content",
+    "result": "PASS"
+  },
+  {
+    "name": "Multiple icons with absent type/sizes attributes restore exactly",
+    "result": "PASS"
+  },
+  {
+    "name": "All native icons removed during notification: original fallback survives until native icon returns",
+    "result": "PASS"
+  },
+  {
+    "name": "An observed generation can continue for more than one minute",
+    "result": "PASS"
+  },
+  {
+    "name": "Work diagnostics match the report: zero Chat selectors, one answer, user copy excluded",
+    "result": "PASS"
+  },
+  {
+    "name": "Work ProseMirror Enter detects short answers without a stop control, two cycles restore",
+    "result": "PASS"
+  },
+  {
+    "name": "Work Send icon click captures the response before the DOM changes",
+    "result": "PASS"
+  },
+  {
+    "name": "Work form submit uses its ProseMirror composer",
+    "result": "PASS"
+  },
+  {
+    "name": "Work generic Stop control detects a long task independently of a send event",
+    "result": "PASS"
+  },
+  {
+    "name": "Work Stop click cancels the pending completion notification",
+    "result": "PASS"
+  },
+  {
+    "name": "Work user message copy action alone does not complete a submitted request",
+    "result": "PASS"
+  },
+  {
+    "name": "Work regeneration of identical text detects re-created action controls without a stop control",
+    "result": "PASS"
+  },
+  {
+    "name": "Work first submission survives creation of a Work conversation URL",
+    "result": "PASS"
+  },
+  {
+    "name": "Work waits until the latest answer content has stopped changing",
+    "result": "PASS"
+  },
+  {
+    "name": "Work IME Enter does not arm a response",
+    "result": "PASS"
+  },
+  {
+    "name": "Work voice Stop dictation is ignored",
+    "result": "PASS"
+  },
+  {
+    "name": "Work generation remains detected if its editor becomes read only",
+    "result": "PASS"
+  },
+  {
+    "name": "Chat labeled ProseMirror Enter detects an instant response with no legacy Chat selectors",
+    "result": "PASS"
+  },
+  {
+    "name": "English Message ChatGPT editor captures Send",
+    "result": "PASS"
+  },
+  {
+    "name": "Chat Stop control is recognized independently of the send event",
+    "result": "PASS"
+  },
+  {
+    "name": "Switching Work to Chat without a reload preserves notification and restoration",
+    "result": "PASS"
+  },
+  {
+    "name": "Non-chat document editors do not arm a response",
+    "result": "PASS"
+  },
+  {
+    "name": "Japanese message composer recognizes Stop when temporarily read only",
+    "result": "PASS"
+  },
+  {
+    "name": "Ask anything composer captures Enter without treating Shift Enter as send",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: hidden completion emits one notification with a link, without answer text",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: foreground completion and loading old history stay silent",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: ongoing progress is grouped, then completion is separately delivered",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: updates seen in the foreground are not replayed when hiding the tab",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: stalled, resumed and error transitions are delivered; unchanged error is silent",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: an approval dialog is notified without clicking its buttons",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: disabling desktop or progress notifications retains favicon completion",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: unavailable or failing notification API cannot break the favicon",
+    "result": "PASS"
+  },
+  {
+    "name": "Desktop: test shortcut waits five seconds, and dispose cancels a pending test",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: first loading a positive allowance never claims a recovery",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: remaining 0 to positive emits once, including while the page is visible",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: used percentages are correctly inverted",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: Japanese and full-width percentage labels are recognized",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: named accessibility progressbar values can supply the remaining percentage",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: bare percentages are unknown and never guessed as remaining or used",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: reset countdowns and passing reset times alone do not announce recovery",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: loading placeholders and missing cards retain blocked history without notifying",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: a transient positive value shorter than confirmation time does not notify",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: conflicting percentages or duplicate cards are unknown, not recoveries",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: recovery of one window mentions other still-blocked windows",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: multiple windows recovering together create one combined notification",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: a later exhausted-and-recovered cycle can notify again",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: saved blocked state survives a page reload; stale state is ignored",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: only the hidden overview page automatically reloads at the interval",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: unavailable storage stops automatic reload but retains in-memory detection",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: observed hash route works; other tabs and ordinary chats are excluded",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: leaving the usage page prevents a queued recovery and reload",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: diagnostics identify unsupported display and shortcut produces copyable JSON",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: explicit exhausted and restored messages can be matched within one window",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: future reset text without a remaining percentage is never a recovery",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: failed notification is retained and retried after one minute without duplication",
+    "result": "PASS"
+  },
+  {
+    "name": "Usage: malformed individual saved entries do not break monitoring",
+    "result": "PASS"
+  },
+  {
+    "name": "No request: long idle time, error message and offline status do not notify",
+    "result": "PASS"
+  },
+  {
+    "name": "Waiting without Stop lasts past 10 minutes and warns at the 30-minute boundary",
+    "result": "PASS"
+  },
+  {
+    "name": "A stuck Stop control warns after 30 minutes",
+    "result": "PASS"
+  },
+  {
+    "name": "Real Work progress without action buttons resets the timeout",
+    "result": "PASS"
+  },
+  {
+    "name": "Timer text, spinner markup and same-content DOM replacement do not count as progress",
+    "result": "PASS"
+  },
+  {
+    "name": "Acknowledged stall is not repeated until there is fresh progress",
+    "result": "PASS"
+  },
+  {
+    "name": "Progress clears amber; a later completed answer becomes green",
+    "result": "PASS"
+  },
+  {
+    "name": "Persistent visible generation error becomes red and never green while present",
+    "result": "PASS"
+  },
+  {
+    "name": "A brief error that disappears before grace time does not alert",
+    "result": "PASS"
+  },
+  {
+    "name": "Answer prose, code examples, hidden alerts and user messages mentioning errors are ignored",
+    "result": "PASS"
+  },
+  {
+    "name": "An existing error is ignored until it disappears and reappears",
+    "result": "PASS"
+  },
+  {
+    "name": "Disappearing error cannot turn an unchanged partial answer into green",
+    "result": "PASS"
+  },
+  {
+    "name": "Retry does not ignore the still-visible current error",
+    "result": "PASS"
+  },
+  {
+    "name": "Acknowledged error does not repeat while unchanged, but reappearing error does",
+    "result": "PASS"
+  },
+  {
+    "name": "Offline while waiting alerts; network recovery plus a final answer restores success",
+    "result": "PASS"
+  },
+  {
+    "name": "Stop cancellation and conversation navigation cancel pending stall alerts",
+    "result": "PASS"
+  },
+  {
+    "name": "Amber to red to green preserves original favicon and attributes",
+    "result": "PASS"
+  },
+  {
+    "name": "Warning shortcuts show the chosen icon after five seconds and restore on returning",
+    "result": "PASS"
+  },
+  {
+    "name": "A fresh completion observed at a delayed 30-minute poll is green, not a stale warning",
+    "result": "PASS"
+  },
+  {
+    "name": "Hidden UI progress is not visible progress",
+    "result": "PASS"
+  }
+]
