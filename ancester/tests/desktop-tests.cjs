@@ -40,16 +40,16 @@ module.exports = async ({ test, fixture, send, output, streaming, hidden, assert
     });
     await test('Desktop: reviewing a waiting tab suppresses the same stall until fresh progress', async () => {
         const p=await fixture();await send(p);await streaming(p,true);await p.clock.runFor(600000);
-        await hidden(p,false);await hidden(p,true);await p.clock.jump(1500000);
+        await hidden(p,false);await hidden(p,true);await p.clock.observed(1500000);
         assert.equal((await notices(p)).length,0);
         await output(p,'after-review','Fresh progress',false);await p.clock.runFor(1000);
-        await p.clock.jump(1800000);assert.match((await notices(p)).at(-1).title,/進捗が止まって/);await p.close();
+        await p.clock.observed(1800000);assert.match((await notices(p)).at(-1).title,/進捗が止まって/);await p.close();
     });
     await test('Desktop: stalled, resumed and error transitions are delivered; unchanged error is silent', async () => {
-        const p=await fixture();await send(p);await streaming(p,true);await p.clock.jump(1800000);
+        const p=await fixture();await send(p);await streaming(p,true);await p.clock.observed(1800000);
         assert.match((await notices(p)).at(-1).title,/進捗が止まって/);
         await output(p,'resume','New progress',false);await p.clock.runFor(5500);assert.match((await notices(p)).at(-1).title,/再開/);
-        await p.evaluate(()=>document.body.insertAdjacentHTML('beforeend','<div role="alert">Usage limit reached</div>'));await settle(p);
+        await p.evaluate(()=>document.body.insertAdjacentHTML('beforeend','<div role="alert">Network error</div>'));await settle(p);
         assert.match((await notices(p)).at(-1).title,/エラー/);const count=(await notices(p)).length;await p.clock.runFor(10000);assert.equal((await notices(p)).length,count);await p.close();
     });
     await test('Desktop: an approval dialog is notified without clicking its buttons', async () => {
@@ -104,7 +104,7 @@ module.exports = async ({ test, fixture, send, output, streaming, hidden, assert
     });
     await test('Usage: reset countdowns and passing reset times alone do not announce recovery', async () => {
         const p=await usageFixture(usage(card('5-hour limit','0% remaining')),{preferences:{'crf:usageReload':false}});await settle(p);
-        await p.evaluate(()=>document.querySelector('.reset').textContent='Resets in 0 seconds');await p.clock.jump(3600000);await settle(p);
+        await p.evaluate(()=>document.querySelector('.reset').textContent='Resets in 0 seconds');await p.clock.observed(3600000);await settle(p);
         assert.equal((await notices(p)).length,0);assert.equal((await usageInfo(p)).rows[0].state,'blocked');await p.close();
     });
     await test('Usage: loading placeholders and missing cards retain blocked history without notifying', async () => {
@@ -146,19 +146,19 @@ module.exports = async ({ test, fixture, send, output, streaming, hidden, assert
         const q=await usageFixture(usage(card('5-hour limit','100% remaining')),{session:stale});await settle(q);assert.equal((await notices(q)).length,0);await q.close();
     });
     await test('Usage: only the hidden overview page automatically reloads at the interval', async () => {
-        const p=await usageFixture(usage(card('5-hour limit','0% remaining')));await settle(p);await p.clock.jump(58000);assert.equal(await p.evaluate(()=>window.testReloads),1);await p.close();
+        const p=await usageFixture(usage(card('5-hour limit','0% remaining')));await settle(p);await p.clock.observed(58000);assert.equal(await p.evaluate(()=>window.testReloads),1);await p.close();
         for(const mode of ['visible','offline','editing','disabled']){
             const q=await usageFixture(usage(card('5-hour limit','0% remaining')),{preferences:mode==='disabled'?{'crf:usageReload':false}:{}});
             if(mode==='visible')await hidden(q,false);
             if(mode==='offline')await q.evaluate(()=>Object.defineProperty(navigator,'onLine',{value:false}));
             if(mode==='editing')await q.evaluate(()=>{const input=document.createElement('input');document.body.append(input);input.focus();});
-            await settle(q);await q.clock.jump(65000);assert.equal(await q.evaluate(()=>window.testReloads),0,mode);await q.close();
+            await settle(q);await q.clock.observed(65000);assert.equal(await q.evaluate(()=>window.testReloads),0,mode);await q.close();
         }
     });
     await test('Usage: unavailable storage stops automatic reload but retains in-memory detection', async () => {
         const p=await usageFixture(usage(card('5-hour limit','0% remaining')));
         await p.evaluate(()=>{Object.defineProperty(window,'sessionStorage',{value:{getItem(){throw Error('denied');},setItem(){throw Error('denied');}}});});await settle(p);
-        await p.clock.jump(65000);assert.equal(await p.evaluate(()=>window.testReloads),0);assert.equal((await usageInfo(p)).savedState,false);
+        await p.clock.observed(65000);assert.equal(await p.evaluate(()=>window.testReloads),0);assert.equal((await usageInfo(p)).savedState,false);
         await metric(p,'100% remaining');await settle(p);assert.equal((await notices(p)).length,1);await p.close();
     });
     await test('Usage: observed hash route works; other tabs and ordinary chats are excluded', async () => {
@@ -166,12 +166,12 @@ module.exports = async ({ test, fixture, send, output, streaming, hidden, assert
         assert.equal((await usageInfo(p)).page,'usage-overview');await metric(p,'100% remaining');await settle(p);assert.equal((await notices(p)).length,1);await p.close();
         for(const pathname of ['/settings/usage?tab=apps','/c/current']){
             const q=await fixture({pathname,usageHTML:usage(card('5-hour limit','0% remaining'))});await settle(q);await metric(q,'100% remaining');await settle(q);
-            assert.equal((await usageInfo(q)).page,'other');assert.equal((await notices(q)).length,0);await q.clock.jump(65000);assert.equal(await q.evaluate(()=>window.testReloads),0);await q.close();
+            assert.equal((await usageInfo(q)).page,'other');assert.equal((await notices(q)).length,0);await q.clock.observed(65000);assert.equal(await q.evaluate(()=>window.testReloads),0);await q.close();
         }
     });
     await test('Usage: leaving the usage page prevents a queued recovery and reload', async () => {
         const p=await usageFixture(usage(card('5-hour limit','0% remaining')));await settle(p);await metric(p,'100% remaining');await p.clock.runFor(500);
-        await p.evaluate(()=>history.pushState({},'', '/c/different'));await settle(p);await p.clock.jump(65000);assert.equal((await notices(p)).length,0);assert.equal(await p.evaluate(()=>window.testReloads),0);await p.close();
+        await p.evaluate(()=>history.pushState({},'', '/c/different'));await settle(p);await p.clock.observed(65000);assert.equal((await notices(p)).length,0);assert.equal(await p.evaluate(()=>window.testReloads),0);await p.close();
     });
     await test('Usage: diagnostics identify unsupported display and shortcut produces copyable JSON', async () => {
         const p=await usageFixture(usage(card('5-hour limit','25%')));await settle(p);

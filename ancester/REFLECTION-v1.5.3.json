@@ -1,0 +1,272 @@
+{
+  "version": "1.5.3",
+  "completedAtJST": "2026-10-08T15:17:30+09:00",
+  "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification",
+  "processStage3": "completed",
+  "scope": "10 existing files updated after rename backups; 9 new release files; this receipt is separate",
+  "sourceSHA256": "718960e95c971d623aba5c8b572dce12d70619afa51f27a9431af354d9d3c331",
+  "updates": [
+    {
+      "rel": "MGMT.md",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/MGMT.md",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwMA",
+      "bytes": 4651,
+      "sha256": "741c8063c3e9478cbf60361db6d688b938ae63dd8583fb0b104a3b8d1e8c27ba",
+      "dropboxContentHash": "f4939e32cee9ebd3c5a8d39663e51c1958f452a2ced565e9e0bc16cebd4c7d7d",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/MGMT.backup-2026-10-08-01.md",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKrBg",
+      "originalRevisionBeforeBackup": "65d0def8f5ac21bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "README.md",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/README.md",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwNw",
+      "bytes": 967,
+      "sha256": "4ee0b72c75729f003ae59d84e2840356dbb46fe698a2426e1c2562795745d8b2",
+      "dropboxContentHash": "826b51da411419929b10abcf0abc7ab2e482812f63919352681a7e8de294d3d0",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/README.backup-2026-10-08-01.md",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKkwQ",
+      "originalRevisionBeforeBackup": "65d2264af335f1bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "ancester/chatgpt-response-favicon.user.js",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon.user.js",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwSQ",
+      "bytes": 67527,
+      "sha256": "718960e95c971d623aba5c8b572dce12d70619afa51f27a9431af354d9d3c331",
+      "dropboxContentHash": "e0a9d3bec70d742aec5301fd4cb02b7c354671f6340e5a6090e9f1774d9b023b",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon.user.backup-2026-10-08-01.js",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKrAA",
+      "originalRevisionBeforeBackup": "65cf75a43de581bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "ancester/chatgpt-response-favicon.user.txt",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon.user.txt",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwSg",
+      "bytes": 67527,
+      "sha256": "718960e95c971d623aba5c8b572dce12d70619afa51f27a9431af354d9d3c331",
+      "dropboxContentHash": "e0a9d3bec70d742aec5301fd4cb02b7c354671f6340e5a6090e9f1774d9b023b",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon.user.backup-2026-10-08-01.txt",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKrAQ",
+      "originalRevisionBeforeBackup": "65cf75aa12c271bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "ancester/README.md",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/README.md",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwSw",
+      "bytes": 8817,
+      "sha256": "63d1f8e03e2d7ef1ccd032d76d6ce4f4c6354ef2c129e9346c29d4e34de42e18",
+      "dropboxContentHash": "cd39541892e4c942ce17d8e0651d424e3dcc03275d0b8fc582138e8ad9e9fb42",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/README.backup-2026-10-08-01.md",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKrAg",
+      "originalRevisionBeforeBackup": "65cf75ae28d0a1bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "ancester/TESTING.md",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/TESTING.md",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwTA",
+      "bytes": 8438,
+      "sha256": "c6d74da28a13da4049f178958d10c00cd2bcd9cf088782d7c62329d8ce3ab93a",
+      "dropboxContentHash": "2d18fce99c17703ab8e0122474febc13560d6f6122145500478ae83b1fc864dd",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/TESTING.backup-2026-10-08-01.md",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKrAw",
+      "originalRevisionBeforeBackup": "65cf75b29cd541bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "ancester/package.json",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/package.json",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwTQ",
+      "bytes": 292,
+      "sha256": "c457bf0e79d306da2380de5d5226b8ef0e06d7342ce72348541a30fafb1068e4",
+      "dropboxContentHash": "4a02c3c10ba223dbe486ddaaf66367a0d4c6dba5343633e9a6b8c95044e61347",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/package.backup-2026-10-08-01.json",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKrBA",
+      "originalRevisionBeforeBackup": "65cf75b6b4b6b1bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "ancester/tests/test-favicon-dom.cjs",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/tests/test-favicon-dom.cjs",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwTg",
+      "bytes": 33866,
+      "sha256": "0ed0aa6f13d517bef3870f98358e6926d9ed484d91ece3dade920417a6d6fbcf",
+      "dropboxContentHash": "5790df77e6cc0afa855da9e31eac1ee24104cc2e357cbbad7804523842826c2b",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/tests/test-favicon-dom.backup-2026-10-08-01.cjs",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKlyQ",
+      "originalRevisionBeforeBackup": "65ce9ef6b9c2d1bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "ancester/tests/desktop-tests.cjs",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/tests/desktop-tests.cjs",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwTw",
+      "bytes": 21561,
+      "sha256": "b53c0d01e82448337658bca526f030b471601abbaae4390c7ff4271fa759b893",
+      "dropboxContentHash": "d758bf46949a60651badd771b8ca979626c6834e999d04928938accd6427a256",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/tests/desktop-tests.backup-2026-10-08-01.cjs",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKrBQ",
+      "originalRevisionBeforeBackup": "65cf75bb990ce1bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    },
+    {
+      "rel": "ancester/tests/warning-tests.cjs",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/tests/warning-tests.cjs",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwUA",
+      "bytes": 12709,
+      "sha256": "453c15c2bbe70c605dd5b8033d21d96ac5e4f45b53b4df5da158d0f48a2f4396",
+      "dropboxContentHash": "740be9c95ba97aef585ea04ae7754057a65f80b3e8fdbf480f78d3419959489b",
+      "verification": "matched",
+      "status": "completed",
+      "backupPath": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/tests/warning-tests.backup-2026-10-08-01.cjs",
+      "backupOriginalFileId": "id:pdXqx4wRBdMAAAAAAAKlyw",
+      "originalRevisionBeforeBackup": "65ce9ef6b9c2e1bc8f115",
+      "backupVerified": "original file id and byte count confirmed after rename"
+    }
+  ],
+  "creates": [
+    {
+      "rel": "PROCESS_CHART.md",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/PROCESS_CHART.md",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwUQ",
+      "bytes": 2112,
+      "sha256": "11e75ea4b4e879c8f058a04fa9ceb8f28ba76f4f9f77342ed51efbb62033c8a1",
+      "dropboxContentHash": "258a71b8e50d46e34b136c6ce2b796d67d17a31d4f2736ee5330889b53a73700",
+      "verification": "matched",
+      "status": "completed"
+    },
+    {
+      "rel": "ancester/DESIGN-v1.5.3.md",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/DESIGN-v1.5.3.md",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwUg",
+      "bytes": 5224,
+      "sha256": "cfe4e18ab5551afc759988eb34bc473b8289971e370502a9ec38b3e5e8a373b2",
+      "dropboxContentHash": "0f3013d38085344ada45284017898b23a2d8d494d0ef2d4453cbb5c30c1dd3c6",
+      "verification": "matched",
+      "status": "completed"
+    },
+    {
+      "rel": "ancester/1.5.3-report.md",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/1.5.3-report.md",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwUw",
+      "bytes": 2214,
+      "sha256": "a1610f4c59544df0fdc3115bbb7afbf740a9c2439cd1a44bbe65b0298bc80a42",
+      "dropboxContentHash": "b3e8944ff10a193d3af221eb88be72ae259efc69b17f50607e6c92b6761b4c9b",
+      "verification": "matched",
+      "status": "completed"
+    },
+    {
+      "rel": "ancester/CHANGELOG-v1.5.3.md",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/CHANGELOG-v1.5.3.md",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwVA",
+      "bytes": 1852,
+      "sha256": "9736faa74ffa5910f6651b8b7a1c0bd3425a38fa5788306c6f1a227822f3e93b",
+      "dropboxContentHash": "5a46ee1e0c29d693d05476a505b9d68bdc963431db6c671362beff702cdfe00a",
+      "verification": "matched",
+      "status": "completed"
+    },
+    {
+      "rel": "ancester/tests/recovery-v1.5.3.cjs",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/tests/recovery-v1.5.3.cjs",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwVQ",
+      "bytes": 12438,
+      "sha256": "8ac1aba138afa08016f96dcf89d71970db3eea243799c87a9886c3961e8d4131",
+      "dropboxContentHash": "f8cdbf347206878ca290938f2c58ac3792bf522ba723dee9c57a862944d08070",
+      "verification": "matched",
+      "status": "completed"
+    },
+    {
+      "rel": "ancester/tests/results-v1.5.3.json",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/tests/results-v1.5.3.json",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwVg",
+      "bytes": 14321,
+      "sha256": "8740ac3b713424dcafe2ee36a744a06813543e48fa7f31c8c1152bdc548d96b8",
+      "dropboxContentHash": "22d43853b4fa915afbdc11b73d16bcebafe59162923b5e8abfb0f7a2301f80e7",
+      "verification": "matched",
+      "status": "completed"
+    },
+    {
+      "rel": "ancester/chatgpt-response-favicon-v1.5.3.user.js",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.3.user.js",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwVw",
+      "bytes": 67527,
+      "sha256": "718960e95c971d623aba5c8b572dce12d70619afa51f27a9431af354d9d3c331",
+      "dropboxContentHash": "e0a9d3bec70d742aec5301fd4cb02b7c354671f6340e5a6090e9f1774d9b023b",
+      "verification": "matched",
+      "status": "completed"
+    },
+    {
+      "rel": "ancester/chatgpt-response-favicon-v1.5.3.user.txt",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.3.user.txt",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwWA",
+      "bytes": 67527,
+      "sha256": "718960e95c971d623aba5c8b572dce12d70619afa51f27a9431af354d9d3c331",
+      "dropboxContentHash": "e0a9d3bec70d742aec5301fd4cb02b7c354671f6340e5a6090e9f1774d9b023b",
+      "verification": "matched",
+      "status": "completed"
+    },
+    {
+      "rel": "ancester/chatgpt-response-favicon-v1.5.3.zip",
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.3.zip",
+      "fileId": "id:pdXqx4wRBdMAAAAAAAKwWQ",
+      "bytes": 74602,
+      "sha256": "d77066b2fabf82683d109036eade5f1b03e3f2ed47d234319f0b92d0e5fa9ed8",
+      "dropboxContentHash": "9efe8a85da0a6965c20f3954140fb0febde6b6d0c18c0696c6f1a51afbb81a73",
+      "verification": "matched",
+      "status": "completed"
+    }
+  ],
+  "verification": {
+    "files": 19,
+    "matched": 19,
+    "method": "Dropbox content_hash and byte count matched against local release originals; content_hash = SHA256 of concatenated SHA256 digests of 4 MiB blocks",
+    "localReleaseManifest": "All 19 local SHA256 and byte counts matched the prepared release manifest before reflection"
+  },
+  "tests": {
+    "syntax": "PASS",
+    "simulatedDOM": {
+      "passed": 113,
+      "total": 113,
+      "node": "24.19.0",
+      "jsdom": "30.1.1"
+    },
+    "physicalWindowsChromeTampermonkey": "not verified"
+  },
+  "preserved": [
+    "ancester/1.5.2-report.md",
+    "ancester/1.5.3-report.preparation.md",
+    "prior release artifacts and results",
+    "user memo and existing check states in MGMT.md"
+  ],
+  "github": "not written or published",
+  "remaining": [
+    "Windows 11 / Chrome / Tampermonkey verification using ancester/1.5.3-report.md",
+    "Immediate notifications inside collapsed or frozen tabs remain unresolved",
+    "The cause and resolution of delayed background recovery notification remain unconfirmed",
+    "Architecture decision and product name/version-series migration remain pending"
+  ],
+  "restore": "更新版を削除せず未使用名へ退避し、updates[].backupPathのバックアップをupdates[].pathへ戻す。退避先・復元先に同名ファイルがある場合は上書きしない。Tampermonkeyも旧コードへ戻してChatGPTタブを再読み込みする。"
+}

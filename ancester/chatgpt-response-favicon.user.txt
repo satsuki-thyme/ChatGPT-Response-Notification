@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Response Favicon
 // @namespace    https://chatgpt.com/
-// @version      1.5.2
+// @version      1.5.3
 // @description  Chat/Workの変化をファビコンとデスクトップ通知で知らせ、使用状況ページで利用枠の回復を監視。
 // @match        https://chatgpt.com/*
 // @run-at       document-idle
@@ -16,14 +16,19 @@
 (() => {
     'use strict';
 
-    const VERSION = '1.5.2';
+    // ===== 利用者設定：停滞警告までの時間（分） =====
+    // 通常は30。短い確認には0.5（30秒）を指定し、保存後に対象タブを再読み込み。
+    // タブ自体をFreezeすると監視も停止するため、停滞試験には使わない。
+    const STALL_MINUTES = 30;
+    // ===========================================
+
+    const VERSION = '1.5.3';
     const INSTANCE_KEY = '__chatgptResponseFaviconV2';
     const ICON_ID = 'chatgpt-response-favicon';
     const RESTORE_ID = `${ICON_ID}-restore`;
     const GRACE_MS = 3000;
     const QUIET_MS = 1000;
     const POLL_MS = 500;
-    const STALL_MINUTES = 30;
     const STALL_MS = STALL_MINUTES * 60 * 1000;
     const ERROR_GRACE_MS = 2000;
     const ATTRS = ['href', 'type', 'sizes'];
@@ -39,11 +44,17 @@
         '<path d="M32 23v15" stroke="#111827" stroke-width="6" stroke-linecap="round"/>' +
         '<circle cx="32" cy="47" r="3.5" fill="#111827"/></svg>'
     );
-    const ICONS = { done: DONE_ICON, stalled: warningIcon('#fbbf24'), error: warningIcon('#ef4444') };
+    const ICONS = { done: DONE_ICON, stalled: warningIcon('#fbbf24'), error: warningIcon('#ef4444'),
+        limited: warningIcon('#60a5fa'), recovered: DONE_ICON.replace('16a34a', '0284c7') };
     const isOurIcon = href => Object.values(ICONS).includes(href);
     const ERROR_SELECTOR = '[role="alert"], [role="status"], [aria-live="assertive"], ' +
         '[data-testid*="error" i], [data-testid*="failure" i], [data-state="error"], [data-status="error"]';
-    const ERROR_PATTERN = /usage limit reached|(?:you(?:'|’)ve|you have) reached.{0,35}limit|利用上限に達|使用上限に達|something went wrong|(?:an? )?error (?:occurred|has occurred|generating|while generating)|(?:network|server|connection) (?:error|issue|interrupted|lost|failed)|(?:unable|failed) to (?:generate|connect|fetch)|エラーが発生|生成.{0,15}(?:失敗|エラー)|(?:通信|ネットワーク|接続).{0,12}(?:エラー|中断|失敗|切断)/i;
+    const ERROR_PATTERN = /something went wrong|(?:an? )?error (?:occurred|has occurred|generating|while generating)|(?:network|server|connection) (?:error|issue|interrupted|lost|failed)|(?:unable|failed) to (?:generate|connect|fetch)|エラーが発生|生成.{0,15}(?:失敗|エラー)|(?:通信|ネットワーク|接続).{0,12}(?:エラー|中断|失敗|切断)/i;
+    // 利用枠の状態は通信・生成エラーと別に判定する。予定時刻だけでは回復としない。
+    const QUOTA_BLOCKED_PATTERN = /(?:usage|rate|message|weekly|\d[ -]?hour)\s+limit\s+(?:reached|exceeded)|(?:you(?:'|’)ve|you have) reached.{0,35}limit|(?:limit|quota)\s+exhausted|(?:利用|使用|週間|週次)(?:量|回数)?(?:の)?上限に(?:達|到達)|上限に達しました/i;
+    const QUOTA_RECOVERED_PATTERN = /\b(?:usage |rate |message |weekly )?(?:limits?|quota|allowance) (?:has |have )(?:been )?(?:reset|restored|lifted|recovered)\b|\busage (?:is )?available again\b|(?:利用|使用)(?:枠|上限|制限)(?:が|は)(?:回復|リセット|解除)(?:されました|しました)|(?:利用|使用)(?:の)?制限が解除されました|再び利用できます/i;
+    const QUOTA_FUTURE_PATTERN = /\b(?:if|when|once|will|scheduled|until)\b|予定|解除されると|回復したら|リセットされたら|場合/i;
+    const SYSTEM_EXCLUDE = 'pre, code, [contenteditable], [data-turn="user"], [data-message-author-role="user"], [class~="group/user-message"], [data-message-author-role="assistant"]';
     const PROGRESS_SKIP = 'script, style, button, .turn-action-controls, [contenteditable], ' +
         '[hidden], [aria-hidden="true"], [role="timer"], time, [data-testid*="timer" i], [data-testid*="duration" i]';
     const PROGRESS_OUTSIDE = 'nav, aside, header, [role="dialog"], [role="menu"], [role="listbox"], ' +
@@ -118,6 +129,164 @@
     let lastUsageScan = 0;
     let usageLastSnapshot = { status: 'inactive', rows: [], unknownLabels: [] };
     let usageStorageOK = true;
+    const RECOVERY_LEDGER_KEY = 'chatgpt-response-favicon:recovery-ledger:v1';
+    const RECOVERY_LOCK = 'chatgpt-response-favicon:recovery';
+    const OBSERVATION_GAP_MS = 120000;
+    let recoveryStatus = 'idle';
+    let conversationQuota = null;
+    const lifecycle = { lastCheckAt: Date.now(), maximumGapMs: 0, interruptedAt: null,
+        freezeAt: null, resumeAt: null, wasDiscarded: document.wasDiscarded === true };
+
+    function quotaState(text) {
+        const normalized = text.normalize('NFKC').replace(/\s+/g, ' ').trim();
+        const recovered = normalized.split(/[。!?\n]/).some(part =>
+            QUOTA_RECOVERED_PATTERN.test(part) && !QUOTA_FUTURE_PATTERN.test(part));
+        const blocked = QUOTA_BLOCKED_PATTERN.test(normalized);
+        if (recovered && blocked && /\b(?:still|currently)\b|まだ|依然/.test(normalized)) return 'unknown';
+        return recovered ? 'recovered' : blocked ? 'blocked' : null;
+    }
+
+    function systemNotices() {
+        return [...document.querySelectorAll(ERROR_SELECTOR)].filter(element =>
+            !element.closest(SYSTEM_EXCLUDE) && isVisible(element) &&
+            ![...element.querySelectorAll(ERROR_SELECTOR)].some(child => isVisible(child)))
+            .map(element => (element.textContent || '').replace(/\s+/g, ' ').trim())
+            .filter(text => text && text.length <= 1000);
+    }
+
+    function quotaScope(text) {
+        const scopes = [];
+        const hours = text.match(/(\d+)[ -]?(?:hours?|時間)/i);
+        if (hours) scopes.push(`hours-${hours[1]}`);
+        if (/weekly|週間|週ごと|週次/i.test(text)) scopes.push('weekly');
+        if (/code review|コードレビュー/i.test(text)) scopes.push('code-review');
+        return scopes.length === 1 ? scopes[0] : 'unspecified';
+    }
+
+    // 同一オリジンのタブ間で排他し、通知済みの回復エピソードを共通化する。
+    // 保存するのは枠の分類と時刻のみ。会話・通知本文・アカウント情報は保存しない。
+    async function requestRecovery(rows, message, valid) {
+        if (!navigator.locks?.request) { recoveryStatus = 'lock-unavailable'; return false; }
+        try {
+            return await navigator.locks.request(RECOVERY_LOCK, { ifAvailable: true }, lock => {
+                if (!lock) { recoveryStatus = 'busy'; return false; }
+                if (disposed || !valid()) { recoveryStatus = 'obsolete'; return false; }
+                const now = Date.now();
+                const raw = localStorage.getItem(RECOVERY_LEDGER_KEY);
+                const data = raw ? JSON.parse(raw) : { version: 1, events: [] };
+                if (data.version !== 1 || !Array.isArray(data.events)) throw Error('Invalid recovery ledger');
+                const events = data.events.filter(event => Number.isFinite(event.at) && event.at <= now &&
+                    now - event.at < USAGE_TTL_MS && Array.isArray(event.scopes) && event.scopes.every(key => typeof key === 'string'));
+                const unseen = rows.filter(row => !events.some(event => event.at >= row.blockedAt &&
+                    (event.scopes.includes(row.key) || event.scopes.includes('unspecified') || row.key === 'unspecified')));
+                if (!unseen.length) { recoveryStatus = 'deduplicated'; return true; }
+                // API呼び出し前に記録。書込失敗時は通知しない。排他区間ではawaitしない。
+                const next = { version: 1, events: [...events, { at: now, scopes: unseen.map(row => row.key) }].slice(-64) };
+                localStorage.setItem(RECOVERY_LEDGER_KEY, JSON.stringify(next));
+                if (!desktopNotify('usage', message, { allowVisible: true })) {
+                    localStorage.setItem(RECOVERY_LEDGER_KEY, JSON.stringify({ version: 1, events }));
+                    recoveryStatus = 'notification-failed'; return false;
+                }
+                recoveryStatus = preference('desktop') && preference('usage') ? 'requested' : 'disabled';
+                return true;
+            });
+        } catch { recoveryStatus = 'coordination-failed'; return false; }
+    }
+
+    function checkConversationQuota() {
+        const now = Date.now();
+        const notices = systemNotices().map(text => ({ text, state: quotaState(text) })).filter(item => item.state);
+        if (!conversationQuota || conversationQuota.route !== location.pathname) {
+            conversationQuota = { route: location.pathname, startedAt: now, candidate: null,
+                handled: new Set(notices.filter(item => item.state === 'recovered').map(item => item.text)),
+                blockedAt: null, held: false, limitedNotified: false, sending: false, retryAt: 0 };
+        }
+        const monitor = conversationQuota;
+        const blocked = notices.find(item => item.state === 'blocked' || item.state === 'unknown');
+        const recovered = !blocked && notices.find(item => item.state === 'recovered');
+        const state = blocked ? blocked.state : recovered ? 'recovered' : null;
+        const text = blocked?.text || recovered?.text;
+        if (!state) { monitor.candidate = null; return monitor.held; }
+        if (monitor.candidate?.text !== text || monitor.candidate?.state !== state) {
+            monitor.candidate = { text, state, since: now, marked: false };
+        }
+        const candidate = monitor.candidate;
+        if (now - candidate.since < USAGE_CONFIRM_MS) return true;
+        const hold = () => {
+            monitor.held = true;
+            if (pending) {
+                pending.quotaHeld = true;
+                pending.stallAcknowledged = true;
+                pending.stoppedAt = null;
+                pending.desktopProgressDue = null;
+                pending.resumeBaseline = { signature: pending.signature, actions: pending.actions };
+            }
+        };
+        if (state === 'unknown') { hold(); return true; }
+        if (state === 'blocked') {
+            hold();
+            if (monitor.blockedAt === null) {
+                monitor.blockedAt = candidate.since; monitor.handled.clear(); monitor.limitedNotified = false;
+            }
+            if (!monitor.limitedNotified && pending) {
+                notify('limited', '利用上限の表示を検出しました。');
+                monitor.limitedNotified = true;
+            }
+            return true;
+        }
+        if (monitor.handled.has(text)) return monitor.held;
+        // 待機・制限を観測していない初期表示は回復イベントとして通知しない。
+        if (!pending && monitor.blockedAt === null) { monitor.handled.add(text); return monitor.held; }
+        if (!candidate.marked) {
+            hold();
+            notify('recovered', '利用枠の回復表示を検出しました。', false);
+            candidate.marked = true;
+        }
+        if (!monitor.sending && now >= monitor.retryAt) {
+            monitor.sending = true;
+            const valid = () => conversationQuota === monitor && location.pathname === monitor.route &&
+                monitor.candidate === candidate && systemNotices().some(t => t === text && quotaState(t) === 'recovered');
+            requestRecovery([{ key: quotaScope(text), blockedAt: monitor.blockedAt ?? monitor.startedAt }],
+                'チャットで利用枠の回復表示を確認しました。対象の枠・モデルは使用状況ページで確認してください。', valid)
+                .then(ok => {
+                    if (conversationQuota !== monitor) return;
+                    monitor.sending = false;
+                    if (ok) { monitor.handled.add(text); monitor.blockedAt = null; }
+                    else monitor.retryAt = Date.now() + DESKTOP_INTERVAL_MS;
+                });
+        }
+        return true;
+    }
+
+    function resetObservation(reason) {
+        lifecycle.interruptedAt = Date.now();
+        if (pending) {
+            pending.observedSince = Date.now();
+            pending.stoppedAt = null;
+            pending.quietAt = performance.now();
+            pending.errorCandidate = null;
+            pending.desktopProgressDue = null;
+            pending.attention = null;
+        }
+        usageMonitor?.candidates.clear();
+        if (conversationQuota) conversationQuota.candidate = null;
+        lifecycle.reason = reason;
+    }
+
+    function usageReloadBlock(snapshot) {
+        if (!preference('usage') || !preference('usageReload')) return 'disabled';
+        if (document.visibilityState !== 'hidden') return 'visible';
+        if (navigator.onLine === false) return 'offline';
+        if (!usageStorageOK) return 'session-storage-unavailable';
+        if (!snapshot.rows.length) return 'unrecognized';
+        if (typeof GM_notification !== 'function') return 'notification-api-unavailable';
+        if (/\/(?:c|work)\/[^/]+/.test(location.pathname)) return 'conversation-route';
+        if (document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')) return 'input-focus';
+        if ([...document.querySelectorAll('input:not([type="hidden"]), textarea, [contenteditable="true"]')]
+            .some(element => String(element.value ?? element.textContent).trim())) return 'unsent-input';
+        if ([...document.querySelectorAll('button')].some(button => isStopButton(button) && isVisible(button))) return 'generating';
+        return null;
+    }
 
     function preference(name) {
         try {
@@ -149,6 +318,7 @@
             progress: ['作業が更新されました', '回答または作業表示に更新がありました。'],
             resumed: ['作業が再開しました', '警告後に、画面上の進捗更新を検出しました。'],
             attention: ['確認が必要です', '承認・確認を待つ表示を検出しました。チャットを確認してください。'],
+            limited: ['利用上限に達しました', '利用上限の表示を検出しました。'],
             usage: ['利用枠が回復しました', message],
             test: ['通知テスト', 'デスクトップ通知を表示できました。']
         };
@@ -191,12 +361,12 @@
         const now = Date.now();
         // 通常の進捗更新は通知しない。長いWork処理では画面更新が頻繁で通知過多になるため、
         // デスクトップ通知は警告後の再開など、利用者の判断が必要な状態変化に絞る。
-        if (document.visibilityState === 'visible' || !preference('progress') || errorActive || !recovered) {
+        if (document.visibilityState === 'visible' || !preference('progress') || errorActive) {
             pending.desktopProgressDue = null;
             pending.desktopProgressKind = null;
             return;
         }
-        if (changed && pending.desktopProgressDue == null) {
+        if (changed && recovered && pending.desktopProgressDue == null) {
             pending.desktopProgressDue = now + DESKTOP_DELAY_MS;
             pending.desktopProgressKind = 'resumed';
         }
@@ -279,8 +449,10 @@
                 if (Number.isFinite(value) && value >= 0 && value <= 100) values.push(used ? 100 - value : value);
             }
         }
-        const blocked = /(?:usage|rate|message|weekly|\d[ -]?hour)\s+limit\s+(?:reached|exceeded)|(?:limit|quota)\s+exhausted|(?:利用|使用|週間|週次)(?:量|回数)?(?:の)?上限に(?:達|到達)|上限に達しました/i.test(normalized);
-        const available = /\blimit (?:has been reset|has (?:been )?lifted|is lifted)\b|\busage (?:is )?available again\b|(?:利用|使用)(?:の)?制限が解除されました|再び利用できます/i.test(normalized);
+        const quota = quotaState(normalized);
+        const blocked = quota === 'blocked';
+        const available = quota === 'recovered';
+        if (quota === 'unknown') return null;
         if (values.length) {
             if (values.some(value => Math.abs(value - values[0]) > 0.01)) return null;
             const remaining = values[0];
@@ -393,34 +565,39 @@
             if (previous?.state === 'blocked' && row.state === 'available' &&
                 now - previous.at < USAGE_TTL_MS) {
                 // 通知APIが失敗した場合は、成功するまで制限中の記録を残す。
-                recovered.push(row);
+                recovered.push({ ...row, blockedAt: previous.blockedAt ?? previous.at });
             } else if (!previous || previous.state !== row.state || now - previous.at >= USAGE_RELOAD_MS) {
-                usageMonitor.entries[row.key] = { state: row.state, at: now };
+                usageMonitor.entries[row.key] = { state: row.state, at: now,
+                    ...(row.state === 'blocked' ? { blockedAt: previous?.state === 'blocked' ? previous.blockedAt ?? previous.at : now } : {}) };
                 dirty = true;
             }
         }
-        if (recovered.length && now >= usageMonitor.retryAt) {
+        if (recovered.length && !usageMonitor.sending && now >= usageMonitor.retryAt) {
             const names = recovered.map(row => `${row.label}${row.remaining === null ? '' : `（残り${Number(row.remaining.toFixed(2))}%）`}`).join('、');
             const blocked = snapshot.rows.filter(row => row.state === 'blocked').map(row => row.label);
             const caveat = blocked.length ? ` ${blocked.join('、')}はまだ上限に達しています。` :
                 snapshot.unknownLabels.length ? ' 読み取れない利用枠もあるため、使用状況ページを確認してください。' : '';
-            if (desktopNotify('usage', `${names}の回復を確認しました。${caveat}`, { allowVisible: true })) {
-                for (const row of recovered) usageMonitor.entries[row.key] = { state: row.state, at: now };
-                usageMonitor.retryAt = 0;
-                dirty = true;
-            } else {
-                usageMonitor.retryAt = now + DESKTOP_INTERVAL_MS;
-            }
+            const monitor = usageMonitor;
+            monitor.sending = true;
+            const valid = () => usageMonitor === monitor && isUsagePage() && recovered.every(row =>
+                usageSnapshot().rows.some(current => current.key === row.key && current.state === 'available'));
+            requestRecovery(recovered, `${names}の回復を確認しました。${caveat}`, valid).then(ok => {
+                if (usageMonitor !== monitor) return;
+                monitor.sending = false;
+                if (ok) {
+                    for (const row of recovered) monitor.entries[row.key] = { state: row.state, at: Date.now() };
+                    monitor.retryAt = 0;
+                    saveUsageState();
+                } else monitor.retryAt = Date.now() + DESKTOP_INTERVAL_MS;
+            });
         }
         if (dirty) saveUsageState();
-        // 閲覧中・入力中・オフラインでは再読み込みしない。記録を保存できない場合も停止する。
-        if (now >= usageMonitor.reloadAt && preference('usage') && preference('usageReload') && usageStorageOK &&
-            snapshot.rows.length > 0 && document.visibilityState === 'hidden' && navigator.onLine !== false &&
-            typeof GM_notification === 'function' &&
-            !document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')) {
+        usageMonitor.reloadBlockedBy = usageReloadBlock(snapshot);
+        if (now >= usageMonitor.reloadAt && !usageMonitor.reloadBlockedBy && !usageMonitor.sending) {
             saveUsageState();
             if (usageStorageOK) {
                 usageMonitor.reloadAt = now + USAGE_RELOAD_MS;
+                usageMonitor.lastReloadAt = now;
                 location.reload();
             }
         }
@@ -433,7 +610,10 @@
             ...usageSnapshot(), desktopAPI: typeof GM_notification === 'function',
             desktopEnabled: preference('desktop'), usageEnabled: preference('usage'),
             autoReload: preference('usageReload'), savedState: usageStorageOK,
-            lastDesktop: desktopLast,
+            lastDesktop: desktopLast, recoveryCoordination: recoveryStatus,
+            webLocks: Boolean(navigator.locks?.request),
+            reloadBlockedBy: usageMonitor?.reloadBlockedBy ?? 'inactive',
+            lastUsageScanAt: lastUsageScan || null, lifecycle: { ...lifecycle },
             blockedBefore: Object.entries(usageMonitor?.entries || {}).filter(([,value]) => value.state === 'blocked').map(([key]) => key)
         };
     }
@@ -545,10 +725,10 @@
         if (reviewWaiting && pending && !pending.cancelled) pending.stallAcknowledged = true;
     }
 
-    function notify(kind = 'done', reason = '') {
+    function notify(kind = 'done', reason = '', sendDesktop = true) {
         lastNotice = { kind, reason, at: Date.now() };
         if (document.visibilityState === 'visible') { restoreIcon(); return; }
-        desktopNotify(kind);
+        if (sendDesktop) desktopNotify(kind);
         noticeKind = kind;
         notified = true;
         syncNotificationIcon();
@@ -680,7 +860,7 @@
             const parent = walker.currentNode.parentElement;
             if (!parent || parent.closest(PROGRESS_SKIP) || !visible(parent)) continue;
             const status = parent.closest(ERROR_SELECTOR);
-            if (status && ERROR_PATTERN.test(status.textContent || '')) continue;
+            if (status && (ERROR_PATTERN.test(status.textContent || '') || quotaState(status.textContent || ''))) continue;
             const text = normalizedProgress(walker.currentNode.nodeValue || '');
             if (text) pieces.push(text);
         }
@@ -697,10 +877,8 @@
     function visibleErrors() {
         const found = new Map();
         if (navigator.onLine === false) found.set('offline', { key: 'offline', text: 'ネットワーク接続がオフラインです。' });
-        for (const element of document.querySelectorAll(ERROR_SELECTOR)) {
-            if (element.closest('pre, code, [contenteditable], [data-turn="user"], [data-message-author-role="user"], [class~="group/user-message"]') || !isVisible(element)) continue;
-            const text = (element.textContent || '').replace(/\s+/g,' ').trim();
-            if (!text || text.length > 1000 || !ERROR_PATTERN.test(text)) continue;
+        for (const text of systemNotices()) {
+            if (!ERROR_PATTERN.test(text)) continue;
             const key = normalizedProgress(text).replace(/(?:retry|try again) in \d+\s*(?:seconds?|s)/gi, 'retry');
             found.set(key, { key, text: text.slice(0,240) });
         }
@@ -716,11 +894,12 @@
         const baselineErrors = new Set(visibleErrors().map(error => error.key));
         // 再試行直後も、現在の障害が消えるまで正常完了にしない。
         if (pending?.errorCandidate) baselineErrors.delete(pending.errorCandidate.key);
+        if (conversationQuota) conversationQuota.held = false;
         pending = {
             reason, baseline: state.signature, baselineActions: state.actions, started: performance.now(),
             sawStreaming: false, stoppedAt: null, quietAt: performance.now(),
             signature: state.signature, actions: state.actions, sawMissingActions: false, cancelled: false,
-            progress: progressToken(), lastProgressAt: Date.now(), stallWarned: false, stallAcknowledged: false,
+            progress: progressToken(), lastProgressAt: Date.now(), observedSince: Date.now(), stallWarned: false, stallAcknowledged: false,
             baselineErrors, desktopProgressDue: null, desktopProgressAt: 0, desktopProgressKind: null, attention: null,
             warnedErrors: new Set(), errorCandidate: null, currentError: null, resumeBaseline: null
         };
@@ -735,6 +914,10 @@
         for (const key of pending.warnedErrors) if (!keys.has(key)) pending.warnedErrors.delete(key);
         const error = errors.find(item => item.key === 'offline' || !pending.baselineErrors.has(item.key));
         const progressChanged = progress !== pending.progress;
+        if (pending.quotaHeld && progressChanged && !systemNotices().some(text => ['blocked', 'unknown'].includes(quotaState(text)))) {
+            pending.quotaHeld = false;
+            if (conversationQuota) conversationQuota.held = false;
+        }
         const recovered = progressChanged && !error && (pending.stallWarned || Boolean(pending.errorCandidate));
         if (progressChanged) {
             pending.progress = progress;
@@ -762,6 +945,8 @@
             return true;
         }
         pending.errorCandidate = null;
+        if (pending.quotaHeld || conversationQuota?.held ||
+            (conversationQuota?.candidate && !conversationQuota.handled.has(conversationQuota.candidate.text))) return true;
         // 長く間引かれた監視が、完了操作の出現と同時に再開した場合は完了判定を優先する。
         const changedResult = state.signature !== pending.baseline || state.actions !== pending.baselineActions;
         const freshResult = !pending.resumeBaseline || state.signature !== pending.resumeBaseline.signature ||
@@ -769,7 +954,7 @@
         const completing = !state.streaming && changedResult && freshResult &&
             (state.hasActions || (pending.sawStreaming && state.hasContent));
         if (!pending.stallWarned && !pending.stallAcknowledged && !completing &&
-            wallNow - pending.lastProgressAt >= STALL_MS) {
+            wallNow - Math.max(pending.lastProgressAt, pending.observedSince) >= STALL_MS) {
             pending.stallWarned = true;
             pending.resumeBaseline = { signature: state.signature, actions: state.actions };
             // エラーの赤い警告は、停滞の黄色へ格下げしない。
@@ -782,8 +967,13 @@
         clearTimeout(scheduled);
         scheduled = null;
         if (disposed) return;
+        const wallNow = Date.now();
+        const gap = wallNow - lifecycle.lastCheckAt;
+        lifecycle.maximumGapMs = Math.max(lifecycle.maximumGapMs, gap);
+        if (gap > OBSERVATION_GAP_MS || gap < 0) resetObservation('timer-gap');
+        lifecycle.lastCheckAt = wallNow;
         acknowledge();
-        if (checkUsageMonitor()) { pending = null; restoreIcon(); route = location.pathname; return; }
+        if (checkUsageMonitor()) { pending = null; conversationQuota = null; restoreIcon(); route = location.pathname; return; }
         const state = snapshot();
         const now = performance.now();
         if (location.pathname !== route) {
@@ -795,6 +985,7 @@
         }
 
         if (state.streaming && !pending) arm('generation', state);
+        checkConversationQuota();
         if (!pending) return;
         if (pending.cancelled) {
             restoreIcon();
@@ -863,12 +1054,16 @@
             notified, notification: noticeKind || 'none', originalIcons: nativeIcons().length,
             stallMinutes: STALL_MINUTES,
             minutesWithoutProgress: pending ? Math.max(0, Math.floor((Date.now() - pending.lastProgressAt) / 60000)) : null,
+            minutesContinuouslyObserved: pending ? Math.max(0, Math.floor((Date.now() - Math.max(pending.lastProgressAt, pending.observedSince)) / 60000)) : null,
             currentError: pending?.currentError || '', stallAcknowledged: Boolean(pending?.stallAcknowledged),
             lastNotification: lastNotice?.kind || 'none',
             lastReason: lastNotice?.reason || '',
             desktopEnabled: preference('desktop'), desktopAPI: typeof GM_notification === 'function',
             lastDesktopStatus: desktopLast?.status || 'none', lastDesktopKind: desktopLast?.kind || 'none',
-            usagePage: isUsagePage(), usageStatus: usageLastSnapshot.status
+            usagePage: isUsagePage(), usageStatus: usageLastSnapshot.status,
+            quotaState: conversationQuota?.candidate?.state || (pending?.quotaHeld ? 'waiting-for-progress' : 'none'),
+            recoveryCoordination: recoveryStatus, webLocks: Boolean(navigator.locks?.request),
+            lifecycle: { ...lifecycle }
         };
     }
 
@@ -879,11 +1074,13 @@
             `画面: ${info.layout}\n生成中: ${info.generating}\n回答待機: ${info.waiting}\n` +
             `最新回答のコピー操作: ${info.latestAnswerHasCopy}\n` +
             `回答ターン数: ${info.assistantTurns}\n通知: ${info.notification}\n` +
-            `進捗更新なし: ${info.minutesWithoutProgress ?? '-'}分 / ${STALL_MINUTES}分\n` +
+            `進捗更新なし: ${info.minutesWithoutProgress ?? '-'}分 / 連続観測: ${info.minutesContinuouslyObserved ?? '-'}分（警告まで${STALL_MINUTES}分）\n` +
             `停滞通知の確認済み抑制: ${info.stallAcknowledged ? 'ON' : 'OFF'}\n` +
             `エラー: ${info.currentError || 'なし'}\n直近の通知理由: ${info.lastReason || 'なし'}\n` +
             `デスクトップ通知: ${info.desktopEnabled ? 'ON' : 'OFF'} / API: ${info.desktopAPI}\n` +
             `直近の通知処理: ${info.lastDesktopStatus}\n使用状況の判定: ${info.usageStatus}\n` +
+            `利用枠: ${info.quotaState} / 回復通知: ${info.recoveryCoordination}\n` +
+            `監視の最大間隔: ${Math.round(info.lifecycle.maximumGapMs / 1000)}秒 / 破棄から復帰: ${info.lifecycle.wasDiscarded}\n` +
             `タブ表示: ${info.visibility}`);
     }
 
@@ -945,6 +1142,12 @@
     }, { capture: true, signal: events.signal });
     document.addEventListener('visibilitychange', () => { acknowledge(true); scheduleCheck(); }, { signal: events.signal });
     window.addEventListener('focus', () => { acknowledge(true); scheduleCheck(); }, { signal: events.signal });
+    document.addEventListener('freeze', () => {
+        lifecycle.freezeAt = Date.now(); resetObservation('freeze');
+    }, { signal: events.signal });
+    document.addEventListener('resume', () => {
+        lifecycle.resumeAt = Date.now(); resetObservation('resume'); scheduleCheck();
+    }, { signal: events.signal });
     window.addEventListener('pageshow', scheduleCheck, { signal: events.signal });
     window.addEventListener('online', scheduleCheck, { signal: events.signal });
     window.addEventListener('offline', scheduleCheck, { signal: events.signal });

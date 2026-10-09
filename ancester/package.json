@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-response-favicon-tests",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "private": true,
   "engines": {
     "node": ">=24"

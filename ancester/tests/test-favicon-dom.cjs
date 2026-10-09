@@ -10,7 +10,7 @@ const workUser = text => `<div class="flex flex-col"><div>${text}</div><div clas
 let browser;
 const results = [];
 
-async function fixture({ empty = false, pathname = '/c/current', noIcons = false, work = false, richLabel = 'Work モードで作成', usageHTML = null, session = {}, preferences = {}, desktopAvailable = true, desktopThrows = false } = {}) {
+async function fixture({ empty = false, pathname = '/c/current', noIcons = false, work = false, richLabel = 'Work モードで作成', usageHTML = null, session = {}, preferences = {}, desktopAvailable = true, desktopThrows = false, shared = null, locksAvailable = true, localStorageThrows = false } = {}) {
     const dom = new JSDOM(`<!doctype html><html><head>${noIcons ? '' : `<link id="original" rel="icon" href="${ORIGINAL}" type="image/png" sizes="32x32"><link id="touch" rel="apple-touch-icon" href="/touch.png">`}</head><body><main id="conversation">${empty ? '' : work ? workUser('Old question') + workAnswer('a0','Old response') : article('a0','Old response')}</main>${work ? `<section id="work-composer"><div id="work-editor" class="ProseMirror ProseMirror-focused" role="textbox" aria-label="${richLabel}" contenteditable="true">test prompt</div><button type="button" aria-label="送信"><svg></svg></button><div id="stop-host"></div></section>` : '<form data-chatgpt-composer><div id="prompt-textarea" contenteditable="true">test prompt</div><button type="button" data-testid="send-button">Send</button><div id="stop-host"></div></form>'}</body></html>`,{url:'https://chatgpt.com'+pathname,runScripts:'outside-only'});
     const w=dom.window,d=w.document;
     w.testHidden=true;
@@ -22,6 +22,19 @@ async function fixture({ empty = false, pathname = '/c/current', noIcons = false
     };
     w.matchMedia=()=>({matches:true});
     w.testAlerts=[];w.alert=text=>w.testAlerts.push(text);w.prompt=(title,text)=>{w.testPrompt=text;return null;};w.testMenus={};
+    const sharedState = shared || { values: new Map(), locked: false };
+    Object.defineProperty(w, 'localStorage', { configurable: true, value: {
+        getItem(key) { if(localStorageThrows)throw Error('Storage blocked');return sharedState.values.get(key) ?? null; },
+        setItem(key,value) { if(localStorageThrows)throw Error('Storage blocked');sharedState.values.set(key,String(value)); },
+        removeItem(key) { sharedState.values.delete(key); }
+    }});
+    if(locksAvailable)Object.defineProperty(w.navigator, 'locks', { configurable:true, value: {
+        request(name, options, callback) { return Promise.resolve().then(() => {
+            if(sharedState.locked)return callback(null);
+            sharedState.locked=true;
+            try { return callback({ name }); } finally { sharedState.locked=false; }
+        }); }
+    }});
     w.testNotifications=[];w.testPreferences={...preferences};w.testFocus=0;
     w.focus=()=>w.testFocus++;
     w.GM_getValue=(key,fallback)=>Object.hasOwn(w.testPreferences,key)?w.testPreferences[key]:fallback;
@@ -56,7 +69,10 @@ async function fixture({ empty = false, pathname = '/c/current', noIcons = false
     w.eval(source);await flush();
     return {
         evaluate(fn,arg){const value=w.Function('arg',`return (${fn.toString()})(arg);`)(arg);return Promise.resolve(value !== null && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value);},
-        clock:{runFor, async jump(ms){
+        clock:{runFor, async observed(ms){
+            // 監視が動き続ける経過。jumpは実際の監視空白を再現するため残す。
+            while(ms>0){const step=Math.min(ms,60000);await this.jump(step);ms-=step;}
+        }, async jump(ms){
             await flush();now+=ms;
             for(const timer of timers.values())if(timer.due<now)timer.due=now;
             await runFor(1);
@@ -102,7 +118,7 @@ async function test(name, fn) {
         const p=await fixture();
         for(let i=1;i<=2;i++) {
             await hidden(p,true); await streaming(p,true); await output(p,`a${i}`,`Answer ${i}`); await streaming(p,false);
-            await p.clock.runFor(2500); assert.equal(await notified(p),true);
+            await p.clock.runFor(3500); assert.equal(await notified(p),true);
             const attrs=await p.locator('#original').evaluate(e=>({href:e.getAttribute('href'),type:e.getAttribute('type'),sizes:e.getAttribute('sizes')}));
             assert.match(attrs.href,/^data:image\/svg\+xml/); assert.equal(attrs.type,'image/svg+xml'); assert.equal(attrs.sizes,'any');
             await hidden(p,false); assert.equal(await notified(p),false); await assertOriginal(p);
@@ -110,18 +126,18 @@ async function test(name, fn) {
         await p.close();
     });
     await test('Instant response after send click, copy button outside author-role element',async()=>{
-        const p=await fixture(); await send(p); await output(p,'instant','Instant answer'); await p.clock.runFor(2500);
+        const p=await fixture(); await send(p); await output(p,'instant','Instant answer'); await p.clock.runFor(3500);
         assert.equal(await notified(p),true); await hidden(p,false); await assertOriginal(p); await p.close();
     });
     await test('Enter captures an instant response before the DOM changes',async()=>{
         const p=await fixture();
         await p.evaluate(()=>document.getElementById('prompt-textarea').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true})));
-        await output(p,'enter','Keyboard answer'); await p.clock.runFor(2500); assert.equal(await notified(p),true); await p.close();
+        await output(p,'enter','Keyboard answer'); await p.clock.runFor(3500); assert.equal(await notified(p),true); await p.close();
     });
     await test('Form submit captures an instant response',async()=>{
         const p=await fixture();
         await p.evaluate(()=>document.querySelector('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
-        await output(p,'submit','Submitted answer'); await p.clock.runFor(2500); assert.equal(await notified(p),true); await p.close();
+        await output(p,'submit','Submitted answer'); await p.clock.runFor(3500); assert.equal(await notified(p),true); await p.close();
     });
     await test('Voice Stop dictation and a hidden generation control are ignored',async()=>{
         const p=await fixture();
@@ -137,17 +153,17 @@ async function test(name, fn) {
     await test('Brief stop-control disappearance does not notify early',async()=>{
         const p=await fixture(); await streaming(p,true); await output(p,'stream','Partial output',false); await streaming(p,false);
         await p.clock.runFor(1000); assert.equal(await notified(p),false); await streaming(p,true);
-        await p.clock.runFor(3000); assert.equal(await notified(p),false); await streaming(p,false); await p.clock.runFor(2500);
+        await p.clock.runFor(3000); assert.equal(await notified(p),false); await streaming(p,false); await p.clock.runFor(3500);
         assert.equal(await notified(p),true); await p.close();
     });
     await test('Native favicon href updates during notification are preserved on restore',async()=>{
-        const p=await fixture(); await streaming(p,true); await output(p,'head','Answer'); await streaming(p,false); await p.clock.runFor(2500);
+        const p=await fixture(); await streaming(p,true); await output(p,'head','Answer'); await streaming(p,false); await p.clock.runFor(3500);
         await p.evaluate(next=>document.getElementById('original').setAttribute('href',next),NEXT); await p.clock.runFor(100);
         assert.equal(await notified(p),true); assert.match(await p.locator('#original').getAttribute('href'),/^data:image\/svg\+xml;charset/);
         await hidden(p,false); await assertOriginal(p,NEXT); await p.close();
     });
     await test('Replacement favicon elements restore; no recurring mutation loop',async()=>{
-        const p=await fixture(); await streaming(p,true); await output(p,'replace','Answer'); await streaming(p,false); await p.clock.runFor(2500);
+        const p=await fixture(); await streaming(p,true); await output(p,'replace','Answer'); await streaming(p,false); await p.clock.runFor(3500);
         await p.evaluate(next=>{
             const link=document.createElement('link');link.id='original';link.rel='icon';link.type='image/png';link.setAttribute('sizes','32x32');link.href=next;
             document.getElementById('original').replaceWith(link);
@@ -159,12 +175,12 @@ async function test(name, fn) {
     await test('First send survives creation of a conversation URL',async()=>{
         const p=await fixture({empty:true,pathname:'/'}); await send(p);
         await p.evaluate(()=>history.replaceState({},'', '/c/new-conversation'));
-        await output(p,'first','First response'); await p.clock.runFor(2500); assert.equal(await notified(p),true); await p.close();
+        await output(p,'first','First response'); await p.clock.runFor(3500); assert.equal(await notified(p),true); await p.close();
     });
     await test('Navigation to another conversation clears the old pending response',async()=>{
         const p=await fixture();await send(p);
         await p.evaluate(()=>history.replaceState({},'', '/c/another-conversation'));
-        await output(p,'history','Another conversation history'); await p.clock.runFor(2500);assert.equal(await notified(p),false);await p.close();
+        await output(p,'history','Another conversation history'); await p.clock.runFor(3500);assert.equal(await notified(p),false);await p.close();
     });
     await test('Five-second test works twice and does not add conversation turns',async()=>{
         const p=await fixture();const count=await p.locator('article').count();
@@ -178,7 +194,7 @@ async function test(name, fn) {
         assert.equal(await p.locator('article').count(),count);await p.close();
     });
     await test('Identical regenerated text still notifies',async()=>{
-        const p=await fixture(); await streaming(p,true); await streaming(p,false);await p.clock.runFor(2500);
+        const p=await fixture(); await streaming(p,true); await streaming(p,false);await p.clock.runFor(3500);
         assert.equal(await notified(p),true);await p.close();
     });
     await test('Completion while the tab is visible does not notify',async()=>{
@@ -186,14 +202,14 @@ async function test(name, fn) {
         assert.equal(await notified(p),false);await assertOriginal(p);await p.close();
     });
     await test('Missing native icons leave no green override after acknowledgement',async()=>{
-        const p=await fixture({noIcons:true});await streaming(p,true);await output(p,'none','Answer');await streaming(p,false);await p.clock.runFor(2500);
+        const p=await fixture({noIcons:true});await streaming(p,true);await output(p,'none','Answer');await streaming(p,false);await p.clock.runFor(3500);
         assert.equal(await notified(p),true);await hidden(p,false);assert.equal(await p.locator('#chatgpt-response-favicon').count(),0);await p.close();
     });
 
     await test('Current section wrapper structure detects copy actions outside message content',async()=>{
         const p=await fixture();await send(p);
         await p.evaluate(()=>document.getElementById('conversation').insertAdjacentHTML('beforeend','<section data-turn="assistant" data-testid="conversation-turn-current"><div data-message-author-role="assistant" data-message-id="current">Current structure</div><div><button data-testid="copy-turn-action-button">Copy</button></div></section>'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Multiple icons with absent type/sizes attributes restore exactly',async()=>{
         const p=await fixture();
@@ -201,13 +217,13 @@ async function test(name, fn) {
             document.getElementById('original').removeAttribute('type');document.getElementById('original').removeAttribute('sizes');
             document.head.insertAdjacentHTML('beforeend','<link id="dark" rel="icon" href="/dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">');
         });
-        await streaming(p,true);await output(p,'attrs','Answer');await streaming(p,false);await p.clock.runFor(2500);
+        await streaming(p,true);await output(p,'attrs','Answer');await streaming(p,false);await p.clock.runFor(3500);
         assert.equal(await notified(p),true);await hidden(p,false);
         assert.deepEqual(await p.evaluate(()=>({type:document.getElementById('original').getAttribute('type'),sizes:document.getElementById('original').getAttribute('sizes'),dark:document.getElementById('dark').getAttribute('href'),media:document.getElementById('dark').getAttribute('media')})),{type:null,sizes:null,dark:'/dark.svg',media:'(prefers-color-scheme: dark)'});
         await p.close();
     });
     await test('All native icons removed during notification: original fallback survives until native icon returns',async()=>{
-        const p=await fixture();await streaming(p,true);await output(p,'fallback','Answer');await streaming(p,false);await p.clock.runFor(2500);
+        const p=await fixture();await streaming(p,true);await output(p,'fallback','Answer');await streaming(p,false);await p.clock.runFor(3500);
         await p.evaluate(()=>document.getElementById('original').remove());await p.clock.runFor(100);await hidden(p,false);
         assert.equal(await p.locator('#chatgpt-response-favicon-restore').getAttribute('href'),ORIGINAL);
         await p.evaluate(()=>document.head.insertAdjacentHTML('beforeend','<link rel="icon" href="/returned.svg">'));await p.clock.runFor(100);
@@ -216,7 +232,7 @@ async function test(name, fn) {
     await test('An observed generation can continue for more than one minute',async()=>{
         const p=await fixture();await send(p);await streaming(p,true);await p.clock.runFor(120000);assert.equal(await notified(p),false);
         assert.equal(await p.evaluate(()=>window.__chatgptResponseFaviconV2.inspect().waiting),true);
-        await output(p,'long','Long response');await streaming(p,false);await p.clock.runFor(2500);assert.equal(await notified(p),true);await p.close();
+        await output(p,'long','Long response');await streaming(p,false);await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Work diagnostics match the report: zero Chat selectors, one answer, user copy excluded',async()=>{
         const p=await fixture({work:true});
@@ -232,7 +248,7 @@ async function test(name, fn) {
             await p.evaluate(()=>document.getElementById('work-editor').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true})));
             assert.equal(await p.evaluate(()=>window.__chatgptResponseFaviconV2.inspect().waiting),true);
             await p.evaluate(html=>document.getElementById('conversation').insertAdjacentHTML('beforeend',html),workUser('Short prompt')+workAnswer(`short-${i}`,'テスト完了'));
-            await p.clock.runFor(3000);assert.equal(await notified(p),true);
+            await p.clock.runFor(3500);assert.equal(await notified(p),true);
             await hidden(p,false);await assertOriginal(p);assert.equal(await notified(p),false);
         }
         await p.close();
@@ -241,7 +257,7 @@ async function test(name, fn) {
         const p=await fixture({work:true});
         await p.evaluate(()=>document.querySelector('button[aria-label="送信"] svg').dispatchEvent(new MouseEvent('click',{bubbles:true})));
         await p.evaluate(html=>document.getElementById('conversation').insertAdjacentHTML('beforeend',html),workAnswer('send','テスト完了'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Work form submit uses its ProseMirror composer',async()=>{
         const p=await fixture({work:true});
@@ -251,7 +267,7 @@ async function test(name, fn) {
             form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
         });
         await p.evaluate(html=>document.getElementById('conversation').insertAdjacentHTML('beforeend',html),workAnswer('form','Answer'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Work generic Stop control detects a long task independently of a send event',async()=>{
         const p=await fixture({work:true});
@@ -259,7 +275,7 @@ async function test(name, fn) {
         await p.clock.runFor(120000);assert.equal(await notified(p),false);
         assert.equal(await p.evaluate(()=>window.__chatgptResponseFaviconV2.inspect().generating),true);
         await p.evaluate(html=>{document.getElementById('conversation').insertAdjacentHTML('beforeend',html);document.getElementById('stop-host').replaceChildren();},workAnswer('long','Done'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Work Stop click cancels the pending completion notification',async()=>{
         const p=await fixture({work:true});
@@ -282,14 +298,14 @@ async function test(name, fn) {
         await p.evaluate(()=>document.querySelector('#work-a0 > .turn-action-controls').remove());
         await p.clock.runFor(100);
         await p.evaluate(html=>document.querySelector('#work-a0').parentElement.outerHTML=html,workAnswer('a0','Old response'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Work first submission survives creation of a Work conversation URL',async()=>{
         const p=await fixture({work:true,empty:true,pathname:'/work'});
         await p.evaluate(()=>document.querySelector('button[aria-label="送信"]').click());
         await p.evaluate(()=>history.replaceState({},'', '/work/new-conversation'));
         await p.evaluate(html=>document.getElementById('conversation').insertAdjacentHTML('beforeend',html),workAnswer('first','Done'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Work waits until the latest answer content has stopped changing',async()=>{
         const p=await fixture({work:true});
@@ -298,7 +314,7 @@ async function test(name, fn) {
         await p.clock.runFor(1400);
         await p.evaluate(()=>document.querySelector('#work-quiet > .whitespace-pre-wrap').textContent='Final');
         await p.clock.runFor(700);assert.equal(await notified(p),false);
-        await p.clock.runFor(1000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
     });
     await test('Work IME Enter does not arm a response',async()=>{
         const p=await fixture({work:true});
@@ -322,7 +338,7 @@ async function test(name, fn) {
         await p.evaluate(()=>document.getElementById('work-editor').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true})));
         assert.equal(await p.evaluate(()=>window.__chatgptResponseFaviconV2.inspect().waiting),true);
         await p.evaluate(html=>document.getElementById('conversation').insertAdjacentHTML('beforeend',html),workAnswer('chat','テスト完了'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);
         await hidden(p,false);await assertOriginal(p);await p.close();
     });
     await test('English Message ChatGPT editor captures Send',async()=>{
@@ -330,7 +346,7 @@ async function test(name, fn) {
         await p.evaluate(()=>{const button=document.querySelector('button[aria-label="送信"]');button.setAttribute('aria-label','Send message');button.click();});
         assert.equal(await p.evaluate(()=>window.__chatgptResponseFaviconV2.inspect().waiting),true);
         await p.evaluate(html=>document.getElementById('conversation').insertAdjacentHTML('beforeend',html),workAnswer('message','Done'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Chat Stop control is recognized independently of the send event',async()=>{
         const p=await fixture({work:true,richLabel:'Chat mode'});
@@ -338,7 +354,7 @@ async function test(name, fn) {
         await p.clock.runFor(1000);
         assert.equal(await p.evaluate(()=>window.__chatgptResponseFaviconV2.inspect().generating),true);
         await p.evaluate(html=>{document.getElementById('stop-host').replaceChildren();document.getElementById('conversation').insertAdjacentHTML('beforeend',html);},workAnswer('stop','Done'));
-        await p.clock.runFor(3000);assert.equal(await notified(p),true);await p.close();
+        await p.clock.runFor(3500);assert.equal(await notified(p),true);await p.close();
     });
     await test('Switching Work to Chat without a reload preserves notification and restoration',async()=>{
         const p=await fixture({work:true});
@@ -346,7 +362,7 @@ async function test(name, fn) {
             await hidden(p,true);
             await p.evaluate(mode=>{const editor=document.getElementById('work-editor');editor.setAttribute('aria-label',mode+' モードで作成');editor.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));},mode);
             await p.evaluate(html=>document.getElementById('conversation').insertAdjacentHTML('beforeend',html),workAnswer(mode,'テスト完了'));
-            await p.clock.runFor(3000);assert.equal(await notified(p),true);
+            await p.clock.runFor(3500);assert.equal(await notified(p),true);
             assert.equal(await p.evaluate(()=>window.__chatgptResponseFaviconV2.inspect().layout),mode);
             await hidden(p,false);await assertOriginal(p);
         }
@@ -372,6 +388,7 @@ async function test(name, fn) {
     });
     await require('./desktop-tests.cjs')({test,fixture,send,output,streaming,hidden,assertOriginal,workAnswer,workUser,ORIGINAL});
     await require('./warning-tests.cjs')({test,fixture,send,output,streaming,hidden,assertOriginal,workAnswer,workUser,ORIGINAL});
+    await require('./recovery-v1.5.3.cjs')({test,fixture,send,output,streaming,hidden,assertOriginal,workAnswer});
     await browser.close();
     const resultPath=__dirname+'/favicon-test-results.json';
     if(fs.existsSync(resultPath)){
