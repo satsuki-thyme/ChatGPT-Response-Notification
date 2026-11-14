@@ -3,22 +3,35 @@
 - Concept, Direction & Product Ownership: Satsuki Thyme
 - AI-assisted Engineering: ChatGPT by OpenAI
 
-## Install
+## 導入・更新
 
-1. Install the "[Tampermonkey](https://www.tampermonkey.net/index.php)" browser extension.
-2. Update the existing "ChatGPT Response Favicon" script in Tampermonkey with `ancester/chatgpt-response-favicon.user.js` (v1.5.3). Keep only one copy enabled.
-3. Reload the target browser tab.
+1. [Tampermonkey](https://www.tampermonkey.net/index.php)を使用する。
+2. 既存の「ChatGPT Response Favicon」のコードを`ancester/chatgpt-response-favicon.user.js`（v1.5.4）で更新する。有効な本体は1本にする。
+3. 未送信入力を保存してから対象タブを再読み込みし、Alt + Shift + Dで1.5.4を確認する。
 
-## Notice
+今回の作業領域版は前回配布した1.5.4と同じコード。導入済みの1.5.4を再インストールする必要はない。既存のスクリプト名・namespace・設定キーは互換性のため保持しており、正式な改称とv0.1.0系列への移行は未実施。
 
-- The feature does not work if the ChatGPT tab is inside a collapsed tab group.
+## 確認済みの動作と制限
 
+- 2026-11-13、利用者からChat・Workの正常動作を確認したと報告された。
+- 同じ報告で、Chromeの「常にアクティブにするサイト」にchatgpt.comを登録すると、折りたたんだタブグループでも通知が届くことが確認された。
+- 利用上限の回復通知は使用状況ページを開いた時に届き、それまでは届かない。非表示のまま回復を知る要件は未達。
+- 凍結・破棄されたページ、ブラウザ終了中、PCスリープ中の通知は保証しない。承認待ち通知や全条件の受入は別途確認が必要。
 
+旧READMEの「折りたたみグループでは動かない」という一律の記述を、利用者が確認した条件付きの動作へ訂正した。
 
-## Development status
+## 回復通知遅延の診断候補（1.5.5）
 
-The v1.5.3 maintenance update has passed 113 simulated DOM tests. Physical verification is pending. Collapsed/frozen tab monitoring remains an open requirement. The legacy script identity is retained for compatibility; the product rename and v0.1.0 migration have not been applied.
+2026-11-15、非表示時の状態・自動更新要求・監視間隔を残す採取用候補を追加した。提出済み1.5.4診断では読み取りと設定は有効だが、遅延原因は未確定。模擬148件に合格し、実機採取待ち。
 
-- [Installation and limits](ancester/README.md)
-- [Physical check form](ancester/1.5.3-report.md)
-- [Process chart](PROCESS_CHART.md)
+診断する場合は、既存スクリプトを`ancester/chatgpt-response-favicon-v1.5.5.user.js`へ入れ替え、[採取手順](ancester/USAGE_DIAGNOSTICS-v1.5.5.md)へ進む。版番号のない通常配布物は1.5.4のまま。保存結果は`SAVE_VERIFICATION_V1_5_5_DIAGNOSTIC_2026-11-15.json`。
+
+## 開発状況
+
+2026-11-14、構文検査と模擬DOM試験129/129に合格。OS通知の実測とは区別する。GitHub反映・公開は未実施。
+
+- [使い方と制限](ancester/README.md)
+- [要件別受入記録・次の診断](ancester/ACCEPTANCE-v1.5.4.md)
+- [検証記録](ancester/TESTING.md)
+- [工程表](PROCESS_CHART.md)
+- [保存検証](SAVE_VERIFICATION_V1_5_4_2026-11-14.json)

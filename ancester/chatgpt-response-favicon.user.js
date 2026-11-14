@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Response Favicon
 // @namespace    https://chatgpt.com/
-// @version      1.5.3
+// @version      1.5.4
 // @description  Chat/Workの変化をファビコンとデスクトップ通知で知らせ、使用状況ページで利用枠の回復を監視。
 // @match        https://chatgpt.com/*
 // @run-at       document-idle
@@ -22,7 +22,7 @@
     const STALL_MINUTES = 30;
     // ===========================================
 
-    const VERSION = '1.5.3';
+    const VERSION = '1.5.4';
     const INSTANCE_KEY = '__chatgptResponseFaviconV2';
     const ICON_ID = 'chatgpt-response-favicon';
     const RESTORE_ID = `${ICON_ID}-restore`;
@@ -83,6 +83,8 @@
         'button[data-testid="copy-turn-action-button"]',
         'button[aria-label="メッセージをコピーする"]',
         'button[aria-label="回答をコピーする"]',
+        // 2026-11採取のChat/Work。一般のコードコピーは対象にしない。
+        '.turn-action-controls button[aria-label="コピーする"]',
         'button[aria-label="Copy message"]', 'button[aria-label="Copy response"]'
     ].join(',');
     const REGENERATE_SELECTOR = [
