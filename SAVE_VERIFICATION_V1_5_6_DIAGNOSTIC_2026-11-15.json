@@ -1,0 +1,369 @@
+{
+  "project": "ChatGPT Response Notification",
+  "version": "1.5.6",
+  "role": "diagnostic copy fix candidate; ordinary distribution remains 1.5.4",
+  "verifiedAt": "2026-11-15T14:18:22.488458+09:00",
+  "sourceSHA256": "9cc88ab2199e0dcf267ac9f2359e0ebbc42781d87554e306867ea3ef55f40f68",
+  "tests": {
+    "syntax": "PASS",
+    "existing": {
+      "passed": 113,
+      "total": 113
+    },
+    "copy_label": {
+      "passed": 16,
+      "total": 16
+    },
+    "usage_trace": {
+      "passed": 19,
+      "total": 19
+    },
+    "diagnostic_dialog": {
+      "passed": 7,
+      "total": 7
+    },
+    "synthetic_total": 155,
+    "runtime": "Node.js 24.22.1 / jsdom 30.1.1",
+    "native_browser": {
+      "planned": 4,
+      "executed": 0,
+      "status": "NOT_RUN",
+      "source_loaded": false,
+      "browser": "Chromium 156.0.8078.79",
+      "reason": "Chromium launch denied at socket() with EPERM in the execution environment"
+    },
+    "windows_tampermonkey": "unverified"
+  },
+  "summary": {
+    "new_artifacts": 4,
+    "updated_documents": 5,
+    "renamed_original_backups": 5,
+    "raw_verified_deliverables": 9,
+    "raw_verified_backups": 5,
+    "raw_verified_unchanged_baselines": 4,
+    "all_readbacks": "PASS"
+  },
+  "scope": {
+    "change": "replace truncated prompt JSON with selectable readonly diagnostic dialog; correct null/no-block diagnostic display",
+    "notification_recovery_reload_and_trace_decisions": "unchanged",
+    "requirementsAssignment": "unchanged",
+    "identity_and_grants": "unchanged",
+    "githubWrites": false,
+    "publication": false,
+    "distributionMethodChange": false,
+    "recoveryDelayResolved": "not established"
+  },
+  "handoff": {
+    "source_file": "absolute local path explicitly accepted by current upload_file schema",
+    "reference": "/references/chatgpt-file-handoff-to-dropbox.md",
+    "library_file_id": "libfile_634cde039a108191bd1bcd433d7ec0d7"
+  },
+  "files": [
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/MGMT.md",
+      "operation": "replace-with-rename-backup",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM4Q",
+      "size": 9297,
+      "sha256": "4f41f8cf7aca8342a6a13e1e697243b8c7a16fe7ec25f1d14ba1fea4beef1235",
+      "dropbox_content_hash": "f8ac1ddf1f39f146ae5fb7be29577f00b575d2c88c5943d3948b8d2d75e420de",
+      "upload": "completed",
+      "raw_readback": "PASS",
+      "backup": {
+        "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/MGMT.backup-2026-11-15-02.md",
+        "file_id": "id:pdXqx4wRBdMAAAAAAAQMpw",
+        "original_id_preserved": true,
+        "size": 7786,
+        "sha256": "9c9d43323f7e8d869f929ec2c92963f6eff6544488aa1f6d39b94e0a8fa4a0ac",
+        "dropbox_content_hash": "3883ce837969d609df596f2b4f023fbbf327c67342b3991fb2453cbed3adf30d",
+        "raw_readback": "PASS"
+      }
+    },
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/PROCESS_CHART.md",
+      "operation": "replace-with-rename-backup",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM4g",
+      "size": 4752,
+      "sha256": "508cdd4afdcceb2523cb8898e5a4d7cd7d30c4bda86c63f020a705c7f9484db7",
+      "dropbox_content_hash": "756df083552311ad7c3a10b9ab1480dd72a8bdc1d79b2d9cad8df7647c54e110",
+      "upload": "completed",
+      "raw_readback": "PASS",
+      "backup": {
+        "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/PROCESS_CHART.backup-2026-11-15-02.md",
+        "file_id": "id:pdXqx4wRBdMAAAAAAAQMqA",
+        "original_id_preserved": true,
+        "size": 4550,
+        "sha256": "98722204de8e27bce66e77b2158a869ff623ff4b33666a77f996704a5cc1e97b",
+        "dropbox_content_hash": "fa85954ed59af3ddf7de77082f2d17ce24b665450b579d32e43e999fb4bef79a",
+        "raw_readback": "PASS"
+      }
+    },
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/README.md",
+      "operation": "replace-with-rename-backup",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM4w",
+      "size": 2723,
+      "sha256": "02aace1299a96d74a707487cb217822557e9eb5dcd9838da7b04c4dd12852230",
+      "dropbox_content_hash": "7bc08e1ccfb6ecd6fffcd844fa50e44f158fa2410246723bd1f49c47b1ab3d5d",
+      "upload": "completed",
+      "raw_readback": "PASS",
+      "backup": {
+        "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/README.backup-2026-11-15-02.md",
+        "file_id": "id:pdXqx4wRBdMAAAAAAAQMqQ",
+        "original_id_preserved": true,
+        "size": 2638,
+        "sha256": "9294113ee10ceea10d162577d921287a374709bd79402b769af9346998f27e7a",
+        "dropbox_content_hash": "312adf4ef084c4d6e5e2fd9680e2cf9fdae2f966a51806d575711902a9fa5856",
+        "raw_readback": "PASS"
+      }
+    },
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/README.md",
+      "operation": "replace-with-rename-backup",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM5A",
+      "size": 12083,
+      "sha256": "abdb056aa690b31983ed30c42b556307177e93c3834794ba33ba1320706339e5",
+      "dropbox_content_hash": "4f6faceee5b93e644686ba5ece163428260c11f90e648abd211da80d3dfc67c1",
+      "upload": "completed",
+      "raw_readback": "PASS",
+      "backup": {
+        "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/README.backup-2026-11-15-02.md",
+        "file_id": "id:pdXqx4wRBdMAAAAAAAQMqg",
+        "original_id_preserved": true,
+        "size": 10992,
+        "sha256": "133e9bddbca84546d5e1f05e4065a7616f113f557933ddb9ec02b17822a3d838",
+        "dropbox_content_hash": "549f953626601d678b3d0b5879052f9b3c18bd5346576cff479bb0f13f2f6bdd",
+        "raw_readback": "PASS"
+      }
+    },
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/TESTING.md",
+      "operation": "replace-with-rename-backup",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM5Q",
+      "size": 13680,
+      "sha256": "2f2a8e6b56f30fc1b4dfcbe58c3005ac462e150eb36aaaff7a7f641149017490",
+      "dropbox_content_hash": "812dd7e0168bc6ed0a666ede6372b8e3b84f68354512572c0937581813f248f8",
+      "upload": "completed",
+      "raw_readback": "PASS",
+      "backup": {
+        "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/TESTING.backup-2026-11-15-02.md",
+        "file_id": "id:pdXqx4wRBdMAAAAAAAQMqw",
+        "original_id_preserved": true,
+        "size": 11960,
+        "sha256": "c8a0909ce85994dcc65d27fd181a289607b0832a5075f5f56427fe3e5e6fca46",
+        "dropbox_content_hash": "3bd86ad55f35f6ade182618eea1f0929cd7d91a99e535605e1fd4d5b4aa19ea9",
+        "raw_readback": "PASS"
+      }
+    },
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/USAGE_DIAGNOSTICS-v1.5.6.md",
+      "operation": "create",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM3Q",
+      "size": 8297,
+      "sha256": "c4a0e111414029588ded00b83e1f8ddac9a4a1d13a388d33371dfe9d8d665efc",
+      "dropbox_content_hash": "09e6d3566f11bb696f32a5d8c7d322d97437d6165c372565df1322248f00ea95",
+      "upload": "completed",
+      "raw_readback": "PASS"
+    },
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.6.user.js",
+      "operation": "create",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM3g",
+      "size": 82073,
+      "sha256": "9cc88ab2199e0dcf267ac9f2359e0ebbc42781d87554e306867ea3ef55f40f68",
+      "dropbox_content_hash": "095a5bdd9dadab6f9d2ce93afd85ae582f2fe57c1387b7d3f960f21afb97591e",
+      "upload": "completed",
+      "raw_readback": "PASS"
+    },
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.6.user.txt",
+      "operation": "create",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM3w",
+      "size": 82073,
+      "sha256": "9cc88ab2199e0dcf267ac9f2359e0ebbc42781d87554e306867ea3ef55f40f68",
+      "dropbox_content_hash": "095a5bdd9dadab6f9d2ce93afd85ae582f2fe57c1387b7d3f960f21afb97591e",
+      "upload": "completed",
+      "raw_readback": "PASS"
+    },
+    {
+      "path": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.6.zip",
+      "operation": "create",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM4A",
+      "size": 154429,
+      "sha256": "84de5383feb2b4d2636105029a83de987d617d45ff21fd0dbd6e9458bdf54f36",
+      "dropbox_content_hash": "7f2904856634287a15ae4821dfabd84a47bce2093c881689f95e31794fa8b437",
+      "upload": "completed",
+      "raw_readback": "PASS"
+    }
+  ],
+  "independentReadbacks": [
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/MGMT.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM4Q",
+      "role": "updated-document",
+      "size": 9297,
+      "sha256": "4f41f8cf7aca8342a6a13e1e697243b8c7a16fe7ec25f1d14ba1fea4beef1235",
+      "dropbox_content_hash": "f8ac1ddf1f39f146ae5fb7be29577f00b575d2c88c5943d3948b8d2d75e420de",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/MGMT.backup-2026-11-15-02.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMpw",
+      "role": "renamed-original",
+      "size": 7786,
+      "sha256": "9c9d43323f7e8d869f929ec2c92963f6eff6544488aa1f6d39b94e0a8fa4a0ac",
+      "dropbox_content_hash": "3883ce837969d609df596f2b4f023fbbf327c67342b3991fb2453cbed3adf30d",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/PROCESS_CHART.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM4g",
+      "role": "updated-document",
+      "size": 4752,
+      "sha256": "508cdd4afdcceb2523cb8898e5a4d7cd7d30c4bda86c63f020a705c7f9484db7",
+      "dropbox_content_hash": "756df083552311ad7c3a10b9ab1480dd72a8bdc1d79b2d9cad8df7647c54e110",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/PROCESS_CHART.backup-2026-11-15-02.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMqA",
+      "role": "renamed-original",
+      "size": 4550,
+      "sha256": "98722204de8e27bce66e77b2158a869ff623ff4b33666a77f996704a5cc1e97b",
+      "dropbox_content_hash": "fa85954ed59af3ddf7de77082f2d17ce24b665450b579d32e43e999fb4bef79a",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/README.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM4w",
+      "role": "updated-document",
+      "size": 2723,
+      "sha256": "02aace1299a96d74a707487cb217822557e9eb5dcd9838da7b04c4dd12852230",
+      "dropbox_content_hash": "7bc08e1ccfb6ecd6fffcd844fa50e44f158fa2410246723bd1f49c47b1ab3d5d",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/README.backup-2026-11-15-02.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMqQ",
+      "role": "renamed-original",
+      "size": 2638,
+      "sha256": "9294113ee10ceea10d162577d921287a374709bd79402b769af9346998f27e7a",
+      "dropbox_content_hash": "312adf4ef084c4d6e5e2fd9680e2cf9fdae2f966a51806d575711902a9fa5856",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/README.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM5A",
+      "role": "updated-document",
+      "size": 12083,
+      "sha256": "abdb056aa690b31983ed30c42b556307177e93c3834794ba33ba1320706339e5",
+      "dropbox_content_hash": "4f6faceee5b93e644686ba5ece163428260c11f90e648abd211da80d3dfc67c1",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/README.backup-2026-11-15-02.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMqg",
+      "role": "renamed-original",
+      "size": 10992,
+      "sha256": "133e9bddbca84546d5e1f05e4065a7616f113f557933ddb9ec02b17822a3d838",
+      "dropbox_content_hash": "549f953626601d678b3d0b5879052f9b3c18bd5346576cff479bb0f13f2f6bdd",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/TESTING.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM5Q",
+      "role": "updated-document",
+      "size": 13680,
+      "sha256": "2f2a8e6b56f30fc1b4dfcbe58c3005ac462e150eb36aaaff7a7f641149017490",
+      "dropbox_content_hash": "812dd7e0168bc6ed0a666ede6372b8e3b84f68354512572c0937581813f248f8",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/TESTING.backup-2026-11-15-02.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMqw",
+      "role": "renamed-original",
+      "size": 11960,
+      "sha256": "c8a0909ce85994dcc65d27fd181a289607b0832a5075f5f56427fe3e5e6fca46",
+      "dropbox_content_hash": "3bd86ad55f35f6ade182618eea1f0929cd7d91a99e535605e1fd4d5b4aa19ea9",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/USAGE_DIAGNOSTICS-v1.5.6.md",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM3Q",
+      "role": "new-artifact",
+      "size": 8297,
+      "sha256": "c4a0e111414029588ded00b83e1f8ddac9a4a1d13a388d33371dfe9d8d665efc",
+      "dropbox_content_hash": "09e6d3566f11bb696f32a5d8c7d322d97437d6165c372565df1322248f00ea95",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.6.user.js",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM3g",
+      "role": "new-artifact",
+      "size": 82073,
+      "sha256": "9cc88ab2199e0dcf267ac9f2359e0ebbc42781d87554e306867ea3ef55f40f68",
+      "dropbox_content_hash": "095a5bdd9dadab6f9d2ce93afd85ae582f2fe57c1387b7d3f960f21afb97591e",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.6.user.txt",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM3w",
+      "role": "new-artifact",
+      "size": 82073,
+      "sha256": "9cc88ab2199e0dcf267ac9f2359e0ebbc42781d87554e306867ea3ef55f40f68",
+      "dropbox_content_hash": "095a5bdd9dadab6f9d2ce93afd85ae582f2fe57c1387b7d3f960f21afb97591e",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.6.zip",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQM4A",
+      "role": "new-artifact",
+      "size": 154429,
+      "sha256": "84de5383feb2b4d2636105029a83de987d617d45ff21fd0dbd6e9458bdf54f36",
+      "dropbox_content_hash": "7f2904856634287a15ae4821dfabd84a47bce2093c881689f95e31794fa8b437",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon.user.js",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMWA",
+      "role": "unchanged-baseline",
+      "size": 67688,
+      "sha256": "70cd5ed1bea265d0520d37920dd9b01065339bfb33aad0fb82239d514a65409c",
+      "dropbox_content_hash": "4685668f4fd1f7910c2609ed203accb911a94cb679f10e2efdfa8bbd682b4b87",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon.user.txt",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMWQ",
+      "role": "unchanged-baseline",
+      "size": 67688,
+      "sha256": "70cd5ed1bea265d0520d37920dd9b01065339bfb33aad0fb82239d514a65409c",
+      "dropbox_content_hash": "4685668f4fd1f7910c2609ed203accb911a94cb679f10e2efdfa8bbd682b4b87",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/package.json",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMWg",
+      "role": "unchanged-baseline",
+      "size": 292,
+      "sha256": "b00dc9f093237dca2f75072db06454f96910936bfd1d381ddf414c88ae85c7cc",
+      "dropbox_content_hash": "fcb5a91195d4f564662c926c75b2e9473eb645e8bd63b7379b446c0d70560c96",
+      "raw_readback": "PASS"
+    },
+    {
+      "destination": "/www/studio/Tampermonkey/ChatGPT-Response-Notification/ancester/chatgpt-response-favicon-v1.5.5.user.js",
+      "file_id": "id:pdXqx4wRBdMAAAAAAAQMpA",
+      "role": "unchanged-baseline",
+      "size": 78013,
+      "sha256": "376a8bb13921c5945355fb29a9272bbfa17b9d39a8bfeb922c4a66315822eee3",
+      "dropbox_content_hash": "0884d706c875251ec8e3694f41b84d36fc868f4590dd9047450ce250069abe48",
+      "raw_readback": "PASS"
+    }
+  ],
+  "remaining": [
+    "Collect full diagnostic in the same usage tab with Alt+Shift+U then Ctrl+C; reuse existing history if available",
+    "Confirm native modal appearance, copy and Escape behavior in Windows/Tampermonkey",
+    "Determine hidden-tab update suppression from full history",
+    "Confirm real recovery notification, approval-wait behavior and final naming/version migration"
+  ],
+  "verificationRecordNote": "Covers completed artifact and backup readbacks. The record itself is independently checked after upload; its own hash is not embedded here."
+}
